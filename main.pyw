@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 import keyboard
-from pynput.mouse import Listener as MouseListener, Button
 import pytesseract
 from googletrans import Translator
 from mss import mss
@@ -75,22 +74,13 @@ class SelectionWindow:
         self.root.attributes('-topmost', True)
         self.root.config(cursor="tcross")
 
-        self.isPressed = False
-        self.screenShotTaken = False
         self.firstScreenPosition = (0, 0)
-        self.secondScreenPosition = (0, 0)
 
-        self.mouseListener = MouseListener(
-            on_move=self.onCursorMove,
-            on_click=self.onMouseClick
-        )
-        self.mouseListener.start()
+        self.root.bind("<Button-1>", self.onLeftButtonClick)
+        self.root.bind("<ButtonRelease-1>", self.onLeftButtonRelease)
 
         self.root.after(1, self.loop)
         self.root.mainloop()
-
-    def __del__(self):
-        self.mouseListener.join()
 
     def loop(self):
         global shouldExit
@@ -98,29 +88,22 @@ class SelectionWindow:
             self.root.destroy()
             return
 
-        if self.screenShotTaken:
-            self.root.destroy()
-            x0 = min(self.firstScreenPosition[0], self.secondScreenPosition[0])
-            y0 = min(self.firstScreenPosition[1], self.secondScreenPosition[1])
-            x1 = max(self.firstScreenPosition[0], self.secondScreenPosition[0])
-            y1 = max(self.firstScreenPosition[1], self.secondScreenPosition[1])
-            print("test")
-            ResultWindow(x0, y0, x1, y1)
-            return
-
         self.root.after(1, self.loop)
 
-    def onCursorMove(self, x, y):
-        if (self.isPressed):
-            self.secondScreenPosition = (x, y)
+    def onLeftButtonClick(self, event):
+        self.firstScreenPosition = (event.x, event.y)
 
-    def onMouseClick(self, x, y, button, pressed):
-        if button == Button.left:
-            if pressed:
-                self.firstScreenPosition = (x, y)
-                self.isPressed = True
-            elif (self.isPressed):
-                self.screenShotTaken = True
+    def onLeftButtonRelease(self, event):
+        secondScreenPosition = (event.x, event.y)
+        self.root.destroy()
+        x0 = min(self.firstScreenPosition[0], secondScreenPosition[0])
+        y0 = min(self.firstScreenPosition[1], secondScreenPosition[1])
+        x1 = max(self.firstScreenPosition[0], secondScreenPosition[0])
+        y1 = max(self.firstScreenPosition[1], secondScreenPosition[1])
+        ResultWindow(x0, y0, x1, y1)
+
+
+
 
 class ResultWindow:
     def __init__(self, x0, y0, x1, y1):
@@ -140,8 +123,6 @@ class ResultWindow:
                 translationResult = Translator().translate(baseText)
             else:
                 translationResult = Translator().translate(baseText, src=languages[fromSelectedLanguage][1], dest=languages[toSelectedLanguage][1])
-
-            print("test1")
 
             tk.Label(self.root, text=f"Base text: {translationResult.src}\n{baseText}\nTranslated text: {translationResult.dest}\n{translationResult.text}").pack()
         else:
@@ -187,7 +168,7 @@ def main():
         )
     ).run()
 
-    
+
 try:
     with pidfile.PIDFile():
         main()
