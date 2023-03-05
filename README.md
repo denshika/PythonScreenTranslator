@@ -2,7 +2,7 @@
 Little python script to translate text on your screen
 
 # How to use
-* Run the main.py script (be sure icon.png is in the same directory)
+* Run the main.pyw script (be sure icon.png is in the same directory)
 * A language selection window should pop up, choose what language you want (Auto doesn't work for languages with non latin alphabet)
 * Once it's done press enter or click the valid button
 * A little icon (system stray) should pop up somewhere on your taskbar, if you wan't to quit the script just right click on it and select "exit"
