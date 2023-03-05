@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
 import keyboard
-import screeninfo
 from pynput.mouse import Listener as MouseListener, Button
 import pytesseract
 from googletrans import Translator
@@ -70,8 +69,6 @@ class LanguageSelection:
 class SelectionWindow:
     def __init__(self):
         self.root = tk.Tk()
-        self.monitor = screeninfo.get_monitors()[0]
-        self.root.wm_geometry(f"{self.monitor.width}x{self.monitor.height}")
 
         self.root.attributes('-fullscreen', True)
         self.root.attributes('-alpha', 0.2)
@@ -190,14 +187,9 @@ def main():
         )
     ).run()
 
-
+    
 try:
     with pidfile.PIDFile():
         main()
 except pidfile.AlreadyRunningError:
     exit()
-
-
-
-
-
